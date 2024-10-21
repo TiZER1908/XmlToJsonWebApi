@@ -1,0 +1,6 @@
+@XmlToJsonWebApi_HostAddress = http://localhost:5265
+
+GET {{XmlToJsonWebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

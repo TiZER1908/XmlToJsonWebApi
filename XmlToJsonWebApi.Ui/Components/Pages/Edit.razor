@@ -1,0 +1,137 @@
+﻿@page "/edit"
+@rendermode InteractiveServer
+
+@using XmlToJsonWebApi.Share.DTOs
+@using XmlToJsonWebApi.Ui.Helpers
+
+<PageTitle>Edit</PageTitle>
+
+<table class="table table-striped" >
+    <thead>
+        <tr>
+            <th></th>
+            <th>Id</th>
+            <th>Начало</th>
+            <th>Окончание</th>
+            <th>Код</th>
+            <th>Наименование</th>
+            <th>Комментарий</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (dicts == null)
+        {
+            <tr>
+                <td colspan="4">Загрузка пользователей...</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var dict in dicts)
+            {
+                <tr>
+                    <td>
+                        <input type="radio" value="@dict.Id" name="dict" @onchange="() => ChangeBut(dict.Id)" />
+                    </td>
+                    <td>@dict.Id</td>
+                    <td>@dict.BeginDate.ToString("dd.MM.yyyy")</td>
+                    <td>@dict.EndDate.ToString("dd.MM.yyyy")</td>
+                    <td>@dict.Code</td>
+                    <td>@dict.Name</td>
+                    <td>@dict.Comments</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+<h3>Изменение справочника №@idbut</h3>
+<div class="form-group">
+    <label for="begindateInput">Начало</label>
+    <input type="date" id="begindateInput" class="form-control" @bind="newDict.BeginDate" />
+</div>
+
+<div class="form-group">
+    <label for="enddateInput">Окончание</label>
+    <input type="date" id="enddateInput" class="form-control" @bind="newDict.EndDate" />
+</div>
+
+<div class="form-group">
+    <label for="codeInput">Код</label>
+    <input type="text" id="codeInput" class="form-control" @bind="newDict.Code" />
+</div>
+
+<div class="form-group">
+    <label for="nameInput">Наименование</label>
+    <input type="text" id="nameInput" class="form-control" @bind="newDict.Name" />
+</div>
+
+<div class="form-group">
+    <label for="commentInput">Комментарий</label>
+    <input type="text" id="commentInput" class="form-control" @bind="newDict.Comments" />
+</div>
+
+<button type="button" class="btn btn-danger btn-sm" @onclick="() => EditDict(idbut)">Изменить</button>
+
+@code {
+    [CascadingParameter] private HttpClient HttpClient { get; set; } = new();
+
+    private List<DictionaryDTO> dicts;
+    private DictionaryDTO newDict = new DictionaryDTO();
+    private string radiodict = string.Empty;
+    private int idbut = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        dicts = await GetDictsAsync();
+    }
+
+    private async Task<List<DictionaryDTO>> GetDictsAsync()
+    {
+        try
+        {
+            var uri = ApiHelper.BaseApiUrl + "/api/v1/XmlToJson/GetAll";
+            var response = await HttpClient.GetAsync(uri);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<List<DictionaryDTO>>();
+            }
+        }
+        catch (Exception ex)
+        {
+        }
+        return new List<DictionaryDTO>();
+    }
+    private async Task ChangeBut(int id)
+    {
+        try
+        {
+            var uri = ApiHelper.BaseApiUrl + "/api/v1/XmlToJson/GetById";
+            var response = await HttpClient.GetAsync($"{uri}/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                newDict = response.Content.ReadFromJsonAsync<DictionaryDTO>().Result;
+            }
+        }
+        catch (Exception ex)
+        {
+        }
+        idbut = id;
+    }
+
+    private async Task EditDict(int id)
+    {
+        try
+        {
+            var uri = ApiHelper.BaseApiUrl + "/api/v1/XmlToJson/Put";
+            var response = await HttpClient.PutAsJsonAsync($"{uri}/{id}", newDict);
+            if (response.IsSuccessStatusCode)
+            {
+                dicts = await GetDictsAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+        }
+    }
+}
