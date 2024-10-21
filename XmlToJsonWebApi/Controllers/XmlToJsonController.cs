@@ -124,11 +124,11 @@ namespace XmlToJsonWebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadFromFile(HttpContext context)
+        public async Task<IActionResult> UploadFromFile(IFormFile file)
         {
             try
             {
-                IFormFile file = context.Request.Form.Files[0];
+                //IFormFile file = context.Request.Form.Files[0];
                 string filepath = _appEnvironment.WebRootPath + "\\Files\\" + file.FileName;
 
                 string name = file.FileName.Split(new char[] { '.' })[0];
