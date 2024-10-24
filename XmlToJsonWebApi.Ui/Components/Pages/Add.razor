@@ -90,33 +90,29 @@
     {
         loadfile = e.GetMultipleFiles();
     }
-    private async Task<System.IO.Stream> UploadDict()
+    private async Task UploadDict()
     {
+        using var formcontent = new MultipartFormDataContent();
         foreach (var file in loadfile)
         {
-            var formcontent = new MultipartFormDataContent();
-            var streamcontent = new StreamContent(file.OpenReadStream());
-            formcontent.Add(streamcontent, "file", "file.xml");
-            try
-            {
-                var uri = ApiHelper.BaseApiUrl + "/api/v1/XmlToJson/UploadFromFile";
-                var response = await HttpClient.PostAsync(uri, formcontent);
-                if (response.IsSuccessStatusCode)
-                {
-                    dicts = await GetDictsAsync();
-                    return await response.Content.ReadAsStreamAsync();
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            var fileResult = file.OpenReadStream();
+            var streamcontent = new StreamContent(fileResult);
+            streamcontent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+            formcontent.Add(streamcontent, "files", file.Name);
         }
-        return null;
+        /*try
+            {*/
+        var uri = ApiHelper.BaseApiUrl + "/api/v1/XmlToJson/UploadFromFile";
+        var response = await HttpClient.PostAsync(uri, formcontent);
+        if (response.IsSuccessStatusCode)
+        {
+            dicts = await GetDictsAsync();
+            await response.Content.ReadAsStreamAsync();
+        }
+        /*}
+        catch (Exception ex)
+        {
+            return null;
+        }*/
     }
-
 }

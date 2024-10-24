@@ -116,63 +116,62 @@ namespace XmlToJsonWebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadFromFile(IFormFile file)
+        public async Task<IActionResult> UploadFromFile([FromForm] IEnumerable<IFormFile> files)
         {
             try
             {
-                //IFormFile file = context.Request.Form.Files[0];
-                string path = _appEnvironment.WebRootPath + "\\Files\\";
-                if (!Directory.Exists(path))
+                foreach (var file in files)
                 {
-                    Directory.CreateDirectory(path);
-                }
-                string name = file.FileName.Split(new char[] { '.' })[0];
-
-                using (FileStream fstream = new FileStream(path + file.FileName, FileMode.OpenOrCreate))
-                {
-                   await file.CopyToAsync(fstream);
-                }
-
-                var xmlRead = new XMlReader();
-                var listXml = xmlRead.ReadFromXml(path + file.FileName);
-                var jsonWrite = new JsonWriter();
-                var result = jsonWrite.WriteToJson(listXml, name);
-
-                if (jsonWrite.WriteToJson(listXml, name))
-                {
-                    foreach (var dict in listXml)
+                    //IFormFile file = context.Request.Form.Files[0];
+                    string path = _appEnvironment.WebRootPath + "\\Files\\";
+                    if (!Directory.Exists(path))
                     {
-                        var codeDict = _dictRepository.First(x => x.Code == dict.Code & !x.IsDeleted);
-                        if (codeDict == null)
-                        {
-                            _dictRepository.Add(new()
-                            {
-                                BeginDate = dict.BeginDate,
-                                EndDate = dict.EndDate,
-                                Code = dict.Code,
-                                Name = dict.Name,
-                                Comments = String.Empty
-                            });
-                        }
-                        else
-                        {
-                            _dictRepository.Edit(codeDict);
-                            codeDict.BeginDate = dict.BeginDate;
-                            codeDict.EndDate = dict.EndDate;
-                            codeDict.Name = dict.Name;
-                            codeDict.EditDate = DateTime.Now;
-                        }
+                        Directory.CreateDirectory(path);
                     }
-                    _dictRepository.Save();
-                    return Ok();
-                    
+                    string name = file.FileName.Split(new char[] { '.' })[0];
 
+                    using (FileStream fstream = new FileStream(path + file.FileName, FileMode.OpenOrCreate))
+                    {
+                        await file.CopyToAsync(fstream);
+                    }
+
+                    var xmlRead = new XMlReader();
+                    var listXml = xmlRead.ReadFromXml(path + file.FileName);
+                    var jsonWrite = new JsonWriter();
+                    var result = jsonWrite.WriteToJson(listXml, name);
+
+                    if (jsonWrite.WriteToJson(listXml, name))
+                    {
+                        foreach (var dict in listXml)
+                        {
+                            var codeDict = _dictRepository.First(x => x.Code == dict.Code & !x.IsDeleted);
+                            if (codeDict == null)
+                            {
+                                _dictRepository.Add(new()
+                                {
+                                    BeginDate = dict.BeginDate,
+                                    EndDate = dict.EndDate,
+                                    Code = dict.Code,
+                                    Name = dict.Name,
+                                    Comments = String.Empty
+                                });
+                            }
+                            else
+                            {
+                                _dictRepository.Edit(codeDict);
+                                codeDict.BeginDate = dict.BeginDate;
+                                codeDict.EndDate = dict.EndDate;
+                                codeDict.Name = dict.Name;
+                                codeDict.EditDate = DateTime.Now;
+                            }
+                        }
+                        _dictRepository.Save();
+                        return Ok();
+
+
+                    }
                 }
-                else
-                {
-                    return BadRequest();
-                }
-                
+                return BadRequest();
             }
             catch
             {
