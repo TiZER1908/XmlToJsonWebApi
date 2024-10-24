@@ -12,8 +12,8 @@ using XmlToJsonWebApi.Data;
 namespace XmlToJsonWebApi.Data.Migrations
 {
     [DbContext(typeof(XmlToJsonDBContext))]
-    [Migration("20241020163746_MigDB")]
-    partial class MigDB
+    [Migration("20241024154537_DirectoriesDB")]
+    partial class DirectoriesDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.EntityFrameworkCore;
 using XmlToJsonWebApi.Data.Model;
 
 namespace XmlToJsonWebApi.Data
@@ -10,3 +11,4 @@ namespace XmlToJsonWebApi.Data
         public DbSet<Dictionary> Dictionaries { get; set; }
     }
 }
+

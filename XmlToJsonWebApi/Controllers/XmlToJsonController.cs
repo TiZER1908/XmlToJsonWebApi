@@ -1,15 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-
-using System.Text;
 using XmlToJsonWebApi.Repositories;
 using XmlToJsonWebApi.Services;
-using XmlToJsonWebApi.Data.Model;
-using static System.Net.Mime.MediaTypeNames;
-using System.IO;
-using XmlToJsonWebApi.Share;
-using System.IO.Pipes;
 using XmlToJsonWebApi.Share.DTOs;
-using System.Xml.Linq;
 
 
 namespace XmlToJsonWebApi.Controllers
@@ -83,16 +75,16 @@ namespace XmlToJsonWebApi.Controllers
         {
             try
             {
-                var iddict = _dictRepository.GetByKey(id);
-                if (iddict != null)
+                var idDict = _dictRepository.GetByKey(id);
+                if (idDict != null)
                 {
-                    _dictRepository.Edit(iddict);
-                    iddict.BeginDate = dict.BeginDate;
-                    iddict.EndDate = dict.EndDate;
-                    iddict.Code = dict.Code;
-                    iddict.Name = dict.Name;
-                    iddict.Comments = dict.Comments;
-                    iddict.EditDate = DateTime.Now;
+                    _dictRepository.Edit(idDict);
+                    idDict.BeginDate = dict.BeginDate;
+                    idDict.EndDate = dict.EndDate;
+                    idDict.Code = dict.Code;
+                    idDict.Name = dict.Name;
+                    idDict.Comments = dict.Comments;
+                    idDict.EditDate = DateTime.Now;
                     _dictRepository.Save();
                     return Ok();
                 }
@@ -124,31 +116,34 @@ namespace XmlToJsonWebApi.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadFromFile(HttpContext context)
+        public async Task<IActionResult> UploadFromFile(IFormFile file)
         {
             try
             {
-                IFormFile file = context.Request.Form.Files[0];
-                string filepath = _appEnvironment.WebRootPath + "\\Files\\" + file.FileName;
-
+                //IFormFile file = context.Request.Form.Files[0];
+                string path = _appEnvironment.WebRootPath + "\\Files\\";
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
                 string name = file.FileName.Split(new char[] { '.' })[0];
 
-                using (FileStream fstream = new FileStream(filepath, FileMode.OpenOrCreate))
+                using (FileStream fstream = new FileStream(path + file.FileName, FileMode.OpenOrCreate))
                 {
                    await file.CopyToAsync(fstream);
                 }
 
-                var xmlread = new XMlReader();
-                var listxml = xmlread.ReadFromXml(filepath);
-                var jsonwrt = new JsonWriter();
-                var resdict = jsonwrt.WriteToJson(listxml, name);
+                var xmlRead = new XMlReader();
+                var listXml = xmlRead.ReadFromXml(path + file.FileName);
+                var jsonWrite = new JsonWriter();
+                var result = jsonWrite.WriteToJson(listXml, name);
 
-                if (jsonwrt.WriteToJson(listxml, name))
+                if (jsonWrite.WriteToJson(listXml, name))
                 {
-                    foreach (var dict in listxml)
+                    foreach (var dict in listXml)
                     {
-                        var codedict = _dictRepository.First(x => x.Code == dict.Code & !x.IsDeleted);
-                        if (codedict == null)
+                        var codeDict = _dictRepository.First(x => x.Code == dict.Code & !x.IsDeleted);
+                        if (codeDict == null)
                         {
                             _dictRepository.Add(new()
                             {
@@ -161,11 +156,11 @@ namespace XmlToJsonWebApi.Controllers
                         }
                         else
                         {
-                            _dictRepository.Edit(codedict);
-                            codedict.BeginDate = dict.BeginDate;
-                            codedict.EndDate = dict.EndDate;
-                            codedict.Name = dict.Name;
-                            codedict.EditDate = DateTime.Now;
+                            _dictRepository.Edit(codeDict);
+                            codeDict.BeginDate = dict.BeginDate;
+                            codeDict.EndDate = dict.EndDate;
+                            codeDict.Name = dict.Name;
+                            codeDict.EditDate = DateTime.Now;
                         }
                     }
                     _dictRepository.Save();

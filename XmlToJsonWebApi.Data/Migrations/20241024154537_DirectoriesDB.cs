@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace XmlToJsonWebApi.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class MigDB : Migration
+    public partial class DirectoriesDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

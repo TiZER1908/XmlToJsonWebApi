@@ -1,5 +1,6 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@inject NavigationManager Navigation
 
 @using XmlToJsonWebApi.Share.DTOs
 @using XmlToJsonWebApi.Ui.Helpers
@@ -16,6 +17,7 @@
             <th>Код</th>
             <th>Наименование</th>
             <th>Комментарий</th>
+            <th></th>
             <th></th>
         </tr>
     </thead>
@@ -38,6 +40,9 @@
                     <td>@dict.Name</td>
                     <td>@dict.Comments</td>
                     <td>
+                        <button type="button" class="btn btn-danger btn-sm" @onclick="() => Edit(dict.Id)">Изменить</button>
+                    </td>
+                    <td>
                         <button type="button" class="btn btn-danger btn-sm" @onclick="() => DeleteDict(dict.Id)">Удалить</button>
                     </td>
                 </tr>
@@ -46,49 +51,11 @@
     </tbody>
 </table>
 
-<h3>Добавить справочник</h3>
-
-<div class="form-group">
-    <label for="begindateInput">Начало</label>
-    <input type="date" id="begindateInput" class="form-control" @bind="newDict.BeginDate" />
-</div>
-
-<div class="form-group">
-    <label for="enddateInput">Окончание</label>
-    <input type="date" id="enddateInput" class="form-control" @bind="newDict.EndDate" />
-</div>
-
-<div class="form-group">
-    <label for="codeInput">Код</label>
-    <input type="text" id="codeInput" class="form-control" @bind="newDict.Code" />
-</div>
-
-<div class="form-group">
-    <label for="nameInput">Наименование</label>
-    <input type="text" id="nameInput" class="form-control" @bind="newDict.Name" />
-</div>
-
-<div class="form-group">
-    <label for="commentInput">Комментарий</label>
-    <input type="text" id="commentInput" class="form-control" @bind="newDict.Comments" />
-</div>
-
-<button class="btn btn-primary" @onclick="@CreateDict">Создать</button>
-
-<h3>Загрузить справочник</h3>
-<div class="form-group">
-    <InputFile id="xmlfile" OnChange="LoadFile" accept=".xml" /><br />
-    <button class="btn btn-primary" @onclick="@UploadDict">Загрузить справочник</button>
-</div>
-
-
 @code {
     [CascadingParameter] private HttpClient HttpClient { get; set; } = new();
 
     private List<DictionaryDTO> dicts;
     private DictionaryDTO newDict = new DictionaryDTO();
-    private IReadOnlyList<IBrowserFile> loadfile;
-    private IFormFile resfile;
 
     protected override async Task OnInitializedAsync()
     {
@@ -112,22 +79,6 @@
         return new List<DictionaryDTO>();
     }
 
-    private async Task CreateDict()
-    {
-        try
-        {
-            var uri = ApiHelper.BaseApiUrl + "/api/v1/XmlToJson/Post";
-            var response = await HttpClient.PostAsJsonAsync(uri, newDict);
-            if (response.IsSuccessStatusCode)
-            {
-                dicts = await GetDictsAsync();
-                newDict = new DictionaryDTO();
-            }
-        }
-        catch (Exception ex)
-        {
-        }
-    }
     private async Task DeleteDict(int id)
     {
         try
@@ -143,37 +94,9 @@
         {
         }
     }
+    private void Edit(int id)
+    {
+        Navigation.NavigateTo($"/edit/{id.ToString()}");
+    }
 
-    private void LoadFile(InputFileChangeEventArgs e)
-    {
-        loadfile = e.GetMultipleFiles();
-    }
-    private async Task<System.IO.Stream> UploadDict()
-    {
-        foreach (var file in loadfile)
-        {
-            var formcontent = new MultipartFormDataContent();
-            var streamcontent = new StreamContent(file.OpenReadStream());
-            formcontent.Add(streamcontent, "file", "file.xml");
-            try
-            {
-                var uri = ApiHelper.BaseApiUrl + "/api/v1/XmlToJson/UploadFromFile";
-                var response = await HttpClient.PostAsync(uri, formcontent);
-                if (response.IsSuccessStatusCode)
-                {
-                    dicts = await GetDictsAsync();
-                    return await response.Content.ReadAsStreamAsync();
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
-        }
-        return null;
-    }
 }
