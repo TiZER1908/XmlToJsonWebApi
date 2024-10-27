@@ -69,22 +69,22 @@ namespace XmlToJsonWebApi.Repositories
             _сontextFactory.Set<T>().Remove(entity);
         }
         //Пометка на удаление по объекту
-        public virtual async Task VirtualDelete(T entity, int dictId)
+        public virtual async Task VirtualDelete(T entity, int userId)
         {
             entity.IsDeleted = true;
             entity.DeleteDate = DateTime.Now;
-            entity.DeletedDictId = dictId;
+            entity.DeletedDictId = userId;
             await SaveChangesAsync();
         }
         //Пометка на удаление по ключу объекта
-        public virtual async Task VirtualDelete(int Id, int dictId)
+        public virtual async Task VirtualDelete(int Id, int userId)
         {
             T? entity = _сontextFactory.Set<T>().FirstOrDefault(w => w.Id == Id);
             if (entity != null)
             {
                 entity.IsDeleted = true;
                 entity.DeleteDate = DateTime.Now;
-                entity.DeletedDictId = dictId;
+                entity.DeletedDictId = userId;
                 await SaveChangesAsync();
             }
         }

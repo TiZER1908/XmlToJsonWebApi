@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlToJsonWebApi.Share", "Xm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlToJsonWebApi.Ui", "XmlToJsonWebApi.Ui\XmlToJsonWebApi.Ui.csproj", "{1219FCD7-2B84-47B7-B9B4-4369E20461C6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlToJsonWebApi.Tests", "XmlToJsonWebApi.Tests\XmlToJsonWebApi.Tests.csproj", "{6289BDC8-96CD-4E03-B710-658BED44366F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{1219FCD7-2B84-47B7-B9B4-4369E20461C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1219FCD7-2B84-47B7-B9B4-4369E20461C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1219FCD7-2B84-47B7-B9B4-4369E20461C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6289BDC8-96CD-4E03-B710-658BED44366F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6289BDC8-96CD-4E03-B710-658BED44366F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6289BDC8-96CD-4E03-B710-658BED44366F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6289BDC8-96CD-4E03-B710-658BED44366F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
